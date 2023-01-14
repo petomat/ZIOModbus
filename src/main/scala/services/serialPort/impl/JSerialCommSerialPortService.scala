@@ -102,8 +102,10 @@ object JSerialCommSerialPortService {
               new IllegalStateException("Could not successfully open the port with a valid configuration.")
             )
           }
-          _ <- ZIO.succeed(p.setComPortParameters(115200, 8, 1, 1))
-          // TODO: flush stale data?
+          _ <- ZIO.succeed(p.setComPortParameters(115200, 8, 2, 0))
+          // TODO: flush stale data?!! ugly:
+          a = new Array[Byte](512)
+          _ <- ZIO.attempt(p.readBytes(a, 512, 0)).debug.orDie
           s <- Semaphore.make(permits = 1)
         } yield {
           new JSerialCommSerialPortService(p, s)

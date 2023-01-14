@@ -11,5 +11,6 @@ trait ModbusRequest[R <: ModbusResponse] {
   def payload: Chunk[Byte]
   // assert(payload.length <= 256 - 1 - 1 - 2) see https://modbus.org/docs/Modbus_Application_Protocol_V1_1b.pdf (Page 5)
   def createResponseFromBytes(bytes: Chunk[Byte]): Either[ModbusResponse.Exception, Response]
+  // TODO: ever needed?
   def responseLength: Int
 }

@@ -7,6 +7,7 @@ object ModbusResponse {
   // Same for all modbus protocols:
   object Exception {
     // TODO: see com.dasgip.controller.modbus.api.ExceptionCode
+    case class Dummy(explanation: String) extends Exception
     case object IllegalFunction extends Exception
     case object IllegalDataAddress extends Exception
     case object IllegalDataValue extends Exception

@@ -12,6 +12,7 @@ object ModbusMessageConstants {
     val maxSerialBuffer: Int = 256
     val maxPayload: Int = maxSerialBuffer - slaveId - functionOrErrorCode - crcLength
     val register: Int = 2
+    val numberOfRegisterBytes: Int = 1
   }
   val maxPayloadRegisters: Int = ByteLengths.maxPayload / ByteLengths.register
 }

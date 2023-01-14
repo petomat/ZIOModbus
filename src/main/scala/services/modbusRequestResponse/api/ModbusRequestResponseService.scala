@@ -14,8 +14,9 @@ trait ModbusRequestResponseService[Req <: ModbusRequest[Resp], Resp <: ModbusRes
 
 object ModbusRequestResponseService {
   // TODO: proper types, i.e. case classes
-  type BusId = String
-  type SlaveId = Int
+  type SlaveId = Byte // TODO: only positive and probably some modbus limit and 0 is for broadcast
+  type RegisterAddress = Short
+  type NumberOfRegisters = Short // dependency to modbus max payload size!
   // same for all protocols:
   sealed trait Error extends Product with Serializable
   object Error {

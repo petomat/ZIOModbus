@@ -18,5 +18,5 @@ lazy val root = (project in file("."))
       "com.fazecast" % "jSerialComm" % "2.9.3"
     ),
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
-    reStart / mainClass := Some("Main")
+    reStart / mainClass := Some("Main4")
   )
