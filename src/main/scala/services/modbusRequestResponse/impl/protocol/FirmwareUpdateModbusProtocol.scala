@@ -14,7 +14,7 @@ case object FirmwareUpdateModbusProtocol extends ModbusProtocol {
     case object Dummy extends Request {
       type Response = Response.Dummy
       def functionCode: Byte = ???
-      def payload: Chunk[Byte] = Chunk.empty
+      def requestData: Chunk[Byte] = Chunk.empty
       def createResponseFromBytes(bytes: Chunk[Byte]): Either[ModbusResponse.Exception, Response] = {
         Right(Response.Dummy)
       }
