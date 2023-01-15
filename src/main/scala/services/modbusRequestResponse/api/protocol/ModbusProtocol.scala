@@ -20,7 +20,7 @@ case object SomeModbusProtocol extends ModbusProtocol {
     case object Dummy extends Request {
       type Response = Response.Dummy
       def functionCode: Byte
-      def payload: Chunk[Byte]
+      def requestData: Chunk[Byte]
       def createResponseFromBytes(bytes: Chunk[Byte]): Either[ModbusResponse.Exception, Response] = {
         Right(Response.Dummy)
       }

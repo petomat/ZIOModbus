@@ -14,7 +14,7 @@ trait ModbusRegistersService {
   // TODO: error type, z.b. weniger register geschrieben als gewünscht.
   def readRegisters(slaveId: SlaveId, registerOffset: RegisterAddress, numberOfRegisters: NumberOfRegisters): ZIO[Any, String, Chunk[Register]]
   // TODO: wo sicherstellen, dass nur maximal (256-1-1-2)/2=126 register bei modbus möglich sind.
-  //       https://modbus.org/docs/Modbus_Application_Protocol_V1_1b.pdf (Page 5)
+  //       https://www.modbus.org/docs/Modbus_Application_Protocol_V1_1b3.pdf (Page 5)
   def writeRegisters(slaveId: SlaveId, registerOffset: RegisterAddress, registers: Chunk[Register]): ZIO[Any, String, Unit]
 }
 

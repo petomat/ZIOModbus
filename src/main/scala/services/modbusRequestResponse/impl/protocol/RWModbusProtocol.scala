@@ -15,12 +15,12 @@ case object RWModbusProtocol extends ModbusProtocol {
     case class ReadHoldingRegisters(registerOffset: RegisterAddress, numberOfRegisters: NumberOfRegisters) extends Request {
       type Response = Response.ReadHoldingRegisters
       def functionCode: Byte = 0x03
-      def payload: Chunk[Byte] = {
+      def requestData: Chunk[Byte] = {
         def shortToBytes(value: Short): Chunk[Byte] = {
           Chunk(((value >>> 8) & 0xFF).toByte, (value & 0xFF).toByte)
         }
         // Modbus specification reserves two bytes for register lengths
-        Chunk(functionCode) ++ shortToBytes(registerOffset) ++ shortToBytes(numberOfRegisters)
+        shortToBytes(registerOffset) ++ shortToBytes(numberOfRegisters)
       }
       // bytes are without crc
       def createResponseFromBytes(bytes: Chunk[Byte]): Either[ModbusResponse.Exception, Response] = {
@@ -33,7 +33,7 @@ case object RWModbusProtocol extends ModbusProtocol {
             numberOfRegistersBytes.head.toInt
           }
           // TODO: if not needed because of above if?!!
-          if (registerBytes.length % ByteLengths.register != 0 || registerBytes.length / ByteLengths.register != n) {
+          if (n * ByteLengths.register != registerBytes.length) {
             Left(ModbusResponse.Exception.Dummy(s"Unexpected register byte length ${registerBytes.length}, expected ${n * ByteLengths.register}"))
           } else {
             val registers: Chunk[Register] = {
