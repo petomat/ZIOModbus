@@ -1,0 +1,111 @@
+= ZIO Modbus
+:toc:
+:toclevels: 3
+:icons: font
+:url-quickref: https://docs.asciidoctor.org/asciidoc/latest/syntax-quick-reference/
+// for local development set this to false, i.e. comment this out:
+:plantuml-server-rendering:
+:github-user: petomat
+:github-project: ziomodbus
+:github-branch: main
+
+With this https://zio.dev/[ZIO]-based library you can talk to https://modbus.org/[modbus] slave__**s**__ on one serial port.
+// https://modbus.org/docs/Modbus_Application_Protocol_V1_1b3.pdf
+
+== Status
+This library is in a very early stage where the developers try to become acquainted with the ZIO library along the way.
+
+== Design
+
+[[foundations]]
+=== Foundations
+
+The library is heavily influenced by and mostly follows the https://zio.dev/reference/service-pattern/[ZIO service pattern], which uses a service tree (no cycles) structure where implementations only depend on interfaces of dependent services ("coding against the interface"). At deployment side, that is where the application is plugged together, implementations are chosen and the dependency tree is fulfilled.
+
+The following picture shows this principle at two stacked services with the additions, that:
+
+* the factory interface of a service implementation is the sole public interface. This is the only handle to the service implementation.
+* the test implementation of lower level service is placed in the higher level service (test) package as a specific test implementation for testing the current service.
+
+// TODO: write about generic tests in the interface package and that each implementation needs to comply with these tests.
+// TODO: write that each service implementation might define a test suite about assumptions of services implementation it depends on.
+// TODO: write about the source code structure evolution steps:
+//  1. source code package for one service.
+//  2. one source code package for the interface and one for the implementation of a service.
+//  3. like 2. but there is one sbt module for the interface and one for each implementation. (avoids accidental imports of implementation code in the interface)
+//  4. like 2. but there is one separate project, esp. git repository, and one for the interface and for each implementation.
+
+:puml-file: ZIOServicesDesign.puml
+ifdef::plantuml-server-rendering[]
+image::http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.github.com/{github-user}/{github-project}/{github-branch}/{puml-file}[]
+endif::[]
+
+ifndef::plantuml-server-rendering[]
+[plantuml,format=png]
+....
+include::{puml-file}[]
+....
+endif::[]
+:!puml-file:
+
+
+=== Service Layers
+
+So far, this library consists of three stacked service layers:
+
+* Modbus Registers Service (/ Modbus Firmware Update Service)
+* Modbus Request Response Service
+* Serial Port Service
+
+The following picture gives a visual overview about the services. They follow the <<foundations,previously explained>> service pattern.
+
+
+:puml-file: ServiceLayers.puml
+ifdef::plantuml-server-rendering[]
+image::http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.github.com/{github-user}/{github-project}/{github-branch}/{puml-file}[]
+endif::[]
+
+ifndef::plantuml-server-rendering[]
+[plantuml,format=png]
+....
+include::{puml-file}[]
+....
+endif::[]
+:!puml-file:
+
+
+The upper layer can be extended by a `"Modbus Firmware Update Service"` just to demonstrate that here might be other modbus protocols (request/response types). This would look like this:
+
+
+:puml-file: ServiceLayersExtended.puml
+ifdef::plantuml-server-rendering[]
+image::http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.github.com/{github-user}/{github-project}/{github-branch}/{puml-file}[]
+endif::[]
+
+ifndef::plantuml-server-rendering[]
+[plantuml,format=png]
+....
+include::{puml-file}[]
+....
+endif::[]
+:!puml-file:
+
+
+==== Modbus Registers Service
+This service translates reads/writes of registers into modbus read/write requests of the service below.
+
+There is a simple default implementation `DefaultModbusRegistersService`, but also a sophisticated `GroupingModbusRegisterService` implementation, that optimizes the translation of reads/writes by collecting reads/writes in a queue and applies a grouping of adjacent ones.
+
+NOTE: There is the sibling `"Modbus Firmware Update Service"` package, which provides a firmware update procedure via modbus firmware requests/responses. The package is only depicted for demonstration purpose and not implemented. It shows that there might be more protocols than the read/write modbus protocol (`RWModbusProtocol`) to be used at the `ModbusRequestResponseService`.
+
+
+==== Modbus Request Response Service
+Given a protocol defining modbus requests and their responses, it writes requests to the serial port service and reads the respective response.
+The service is parameterized by a modbus protocol.
+
+For now, we started with a read/write protocol for accessing registers in the modbus slave. There might be future protocols like firmware update, which the design is prepared for.
+
+
+==== Serial Port Service
+Responsible for reading and writing bytes to a serial port.
+

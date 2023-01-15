@@ -1,0 +1,43 @@
+@startuml
+package "Serial Port Service" as SPS {
+  component SerialPortService<<Interface>>
+  component JSerialCommSerialPortService<<Implementation>>
+  JSerialCommSerialPortService -u-|> SerialPortService : implements
+  () "Factory" as SPF
+  JSerialCommSerialPortService -r- SPF
+}
+
+package "Modbus Request Response Service" as MRRS {
+  component "ModbusRequestResponseService[ModbusProtocol]" as ModbusRequestResponseService <<Interface>>
+  component "DefaultModbusRequestResponseService[ModbusProtocol]" as DefaultModbusRequestResponseService <<Implementation>>
+  DefaultModbusRequestResponseService -u-|> ModbusRequestResponseService : implements
+  () "Factory" as DMRRSF
+  DefaultModbusRequestResponseService -r- DMRRSF
+  DefaultModbusRequestResponseService ..> SerialPortService : depends on
+}
+
+
+package "Modbus Registers Service" as MRS {
+  component ModbusRegistersService<<Interface>>
+  component DefaultModbusRegistersService<<Implementation>>
+  component GroupingModbusRegistersService<<Implementation>>
+  DefaultModbusRegistersService -u-|> ModbusRegistersService : implements
+  GroupingModbusRegistersService -u-|> ModbusRegistersService : implements
+  () "Factory" as DMRSF
+  DefaultModbusRegistersService -r- DMRSF
+  DefaultModbusRegistersService ..> ModbusRequestResponseService : depends on \nModbusRequestResponseService[**RWModbusProtocol**]
+  () "Factory" as GMRSF
+  GroupingModbusRegistersService -r- GMRSF
+  GroupingModbusRegistersService ..> ModbusRequestResponseService : depends on \nModbusRequestResponseService[**RWModbusProtocol**]
+}
+
+
+package "Modbus Firmware Update Service" as MFUS {
+  component ModbusFirmwareUpdateService<<Interface>>
+  component DefaultModbusFirmwareUpdateService<<Implementation>>
+  DefaultModbusFirmwareUpdateService -u-|> ModbusFirmwareUpdateService : implements
+  () "Factory" as DMFUSF
+  DefaultModbusFirmwareUpdateService -r- DMFUSF
+  DefaultModbusFirmwareUpdateService ..> ModbusRequestResponseService : depends on \nModbusRequestResponseService[**FirmwareUpdateModbusProtocol**]
+}
+@enduml

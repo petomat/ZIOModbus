@@ -8,7 +8,7 @@ import services.serialPort.api.SerialPortService
 
 
 case class TestSerialPortService(writtenBytes: Ref[Chunk[Byte]]) extends SerialPortService {
-  val readAllAvailableBytesButAtLeastOneByte: ZIO[Any, String, Chunk[Byte]] =
+  val readAllAvailableBytesButAtLeastOneByte: ZIO[Any, String, Chunk[Byte]] = ???
   def writeBytes(bytes: Chunk[Byte]): ZIO[Any, String, Unit] = writtenBytes.update(_ ++ bytes)
 }
 

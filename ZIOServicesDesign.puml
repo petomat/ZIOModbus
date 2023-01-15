@@ -1,0 +1,31 @@
+@startuml
+package "Lower level service" {
+  component LowerLevelService<<Interface>>
+  component LowerLevelServiceImpl<<Implementation>>
+  LowerLevelServiceImpl -u-|> LowerLevelService : implements
+  () "Factory" as LLSIF
+  note top of LLSIF : Sole public\ninterface
+  LowerLevelServiceImpl -r- LLSIF
+}
+package "Higher level service" {
+  component HigherLevelService<<Interface>>
+  component HigherLevelServiceImpl<<Implementation>>
+  HigherLevelServiceImpl -u-|> HigherLevelService : implements
+  component LowerLevelServiceTestImpl<<Implementation>>
+  note bottom of LowerLevelServiceTestImpl : Specific to this higher level service.\nOther sibling higher level services\nor above might choose another\ntest implementation.
+  'todo: guideline on how to reuse test impls from lower services
+  LowerLevelServiceTestImpl -d--|> LowerLevelService : implements
+  () "Factory" as HLSIF
+  note top of HLSIF : Sole public\ninterface
+  HigherLevelServiceImpl -r- HLSIF
+  HLSIF ..> LowerLevelService : depends on
+  note right on link : "coding against the interface"
+  LowerLevelServiceTestImpl .u.> HLSIF : plugged in\nduring test
+}
+package "Deployment" {
+  'todo: partial deployment with its drawbacks
+  component Application
+  Application ..> HLSIF : Higher level service\nrequires lower lever\nservice implementation
+  Application ..> LLSIF : Fulfill higher level\nservice requirements
+}
+@enduml
